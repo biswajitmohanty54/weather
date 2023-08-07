@@ -1,95 +1,47 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import React from "react";
+import axios from "axios";
+import { useState } from "react";
+import Weather from "../../Component/Weather";
+import Spinner from "../../Component/Spinner";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+  const [city, setCity] = useState(0);
+  const [weather, setWeather] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${process.env.NEXT_PUBLIC_WEATHER_API}`;
+
+  const fetchWeather = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    axios.get(url).then((response) => {
+      setWeather(response.data);
+      //console.log(response.data);
+    });
+    setCity(0);
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <Spinner />;
+  } else {
+    return (
+      <>
+        <div className="container py-5">
+          <div className="d-flex justify-content-between">
+            <h2>Weather Forecast</h2>
+            <form onSubmit={fetchWeather} style={{ width: "20rem" }}>
+              <div className="row">
+                <div className="input-group">
+                  <input onChange={(e) => setCity(e.target.value)} className="form-control border-end-0 border rounded-pill" type="text" id="example-search-input" placeholder="Search City" />
+                </div>
+              </div>
+            </form>
+          </div>
+          {weather.main && <Weather data={weather} />}
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      </>
+    );
+  }
 }
